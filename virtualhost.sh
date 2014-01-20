@@ -158,7 +158,7 @@ fi
 # Delete the virtualhost if that's the requested action
 #
 if [ ! -z $DELETE ]; then
-    echo -n "- Deleting virtualhost, $VIRTUALHOST... Continue? [Y/n]: "
+    echo -n "- Deleting virtualhost, $VIRTUALHOST.conf... Continue? [Y/n]: "
 
     read continue
 
@@ -166,16 +166,16 @@ if [ ! -z $DELETE ]; then
         n*|N*) exit
     esac
 
-    if grep -q -E "$VIRTUALHOST$" /etc/hosts ; then
-        echo "  - Removing $VIRTUALHOST from /etc/hosts..."
+    if grep -q -E "www.$VIRTUALHOST.dev$" /etc/hosts ; then
+        echo "  - Removing www.$VIRTUALHOST.dev from /etc/hosts..."
         echo -n "  * Backing up current /etc/hosts as /etc/hosts.original..."
         cp /etc/hosts /etc/hosts.original
-        sed "/$IP_ADDRESS\t$VIRTUALHOST/d" /etc/hosts > /etc/hosts2
+        sed "/$IP_ADDRESS\twww.$VIRTUALHOST.dev/d" /etc/hosts > /etc/hosts2
         mv -f /etc/hosts2 /etc/hosts
         echo "done"
 
-        if [ -e $APACHE_CONFIG/$APACHE_VIRTUAL_HOSTS_ENABLED/$VIRTUALHOST ]; then
-            DOCUMENT_ROOT=`grep DocumentRoot $APACHE_CONFIG/$APACHE_VIRTUAL_HOSTS_ENABLED/$VIRTUALHOST | awk '{print $2}'`
+        if [ -e $APACHE_CONFIG/$APACHE_VIRTUAL_HOSTS_ENABLED/$VIRTUALHOST.conf ]; then
+            DOCUMENT_ROOT=`grep DocumentRoot $APACHE_CONFIG/$APACHE_VIRTUAL_HOSTS_ENABLED/$VIRTUALHOST.conf | awk '{print $2}'`
 
             if [ -d $DOCUMENT_ROOT ]; then
                 echo -n "  + Found DocumentRoot $DOCUMENT_ROOT. Delete this folder? [y/N]: "
@@ -193,9 +193,9 @@ if [ ! -z $DELETE ]; then
                         ;;
                 esac
             fi
-                echo -n "  - Deleting virtualhost file... ($APACHE_CONFIG/$APACHE_VIRTUAL_HOSTS_ENABLED/$VIRTUALHOST) and ($APACHE_CONFIG/$APACHE_VIRTUAL_HOSTS_AVAILABLE/$VIRTUALHOST) "
-                /usr/sbin/a2dissite $VIRTUALHOST 1>/dev/null 2>/dev/null
-                rm $APACHE_CONFIG/$APACHE_VIRTUAL_HOSTS_AVAILABLE/$VIRTUALHOST
+                echo -n "  - Deleting virtualhost file... ($APACHE_CONFIG/$APACHE_VIRTUAL_HOSTS_ENABLED/$VIRTUALHOST.conf) and ($APACHE_CONFIG/$APACHE_VIRTUAL_HOSTS_AVAILABLE/$VIRTUALHOST.conf) "
+                /usr/sbin/a2dissite $VIRTUALHOST.conf 1>/dev/null 2>/dev/null
+                rm $APACHE_CONFIG/$APACHE_VIRTUAL_HOSTS_AVAILABLE/$VIRTUALHOST.conf
                 echo "done"
 
                 echo -n "+ Restarting Apache... "
@@ -303,9 +303,9 @@ fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # If the virtualhost is not already defined in /etc/hosts, define it...
 #
-if grep -q -E "^$VIRTUALHOST" /etc/hosts ; then
+if grep -q -E "www.$VIRTUALHOST.dev" /etc/hosts ; then
 
-    echo "- $VIRTUALHOST already exists."
+    echo "- www.$VIRTUALHOST.dev already exists."
     echo -n "Do you want to replace this configuration? [Y/n] "
     read resp
 
@@ -320,7 +320,7 @@ else
         We would now normally add an entry in your /etc/hosts so that
         you can access this virtualhost using a name rather than a number.
         However, since you have set the virtualhost to something other than
-        127.0.0.1, this may not be necessary. (ie. there may already be a DNS
+        127.0.1.1, this may not be necessary. (ie. there may already be a DNS
         record pointing to this IP)
 
 _EOT
@@ -415,67 +415,67 @@ fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Create a default index.html if there isn't already one there
 #
-if [ $CREATE_INDEX == 'yes']; then
-    if [ ! -e $DOC_ROOT_PREFIX/$FOLDER/index.html -a ! -e $DOC_ROOT_PREFIX/$FOLDER/index.php ]; then
+# if [ $CREATE_INDEX == 'yes']; then
+#     if [ ! -e $DOC_ROOT_PREFIX/$FOLDER/index.html -a ! -e $DOC_ROOT_PREFIX/$FOLDER/index.php ]; then
 
-        cat << __EOF >$DOC_ROOT_PREFIX/$FOLDER/index.html
-        <html>
-        <head>
-        <title>Welcome to $VIRTUALHOST</title>
-        </head>
-        <style type="text/css">
-        body, div, td { font-family: "Lucida Grande"; font-size: 12px; color: #666666; }
-        b { color: #333333; }
-        .indent { margin-left: 10px; }
-        </style>
-        <body link="#993300" vlink="#771100" alink="#ff6600">
+#         cat << __EOF >$DOC_ROOT_PREFIX/$FOLDER/index.html
+#         <html>
+#         <head>
+#         <title>Welcome to $VIRTUALHOST</title>
+#         </head>
+#         <style type="text/css">
+#         body, div, td { font-family: "Lucida Grande"; font-size: 12px; color: #666666; }
+#         b { color: #333333; }
+#         .indent { margin-left: 10px; }
+#         </style>
+#         <body link="#993300" vlink="#771100" alink="#ff6600">
 
-        <table border="0" width="100%" height="95%"><tr><td align="center" valign="middle">
-        <div style="width: 500px; background-color: #eeeeee; border: 1px dotted #cccccc; padding: 20px; padding-top: 15px;">
-        <div align="center" style="font-size: 14px; font-weight: bold;">
-        Congratulations!
-        </div>
+#         <table border="0" width="100%" height="95%"><tr><td align="center" valign="middle">
+#         <div style="width: 500px; background-color: #eeeeee; border: 1px dotted #cccccc; padding: 20px; padding-top: 15px;">
+#         <div align="center" style="font-size: 14px; font-weight: bold;">
+#         Congratulations!
+#         </div>
 
-        <div align="left">
-        <p>If you are reading this in your web browser, then the only logical conclusion is that the <b><a href="http://$VIRTUALHOST/">http://$VIRTUALHOST/</a></b> virtualhost was setup correctly. :)</p>
+#         <div align="left">
+#         <p>If you are reading this in your web browser, then the only logical conclusion is that the <b><a href="http://$VIRTUALHOST/">http://$VIRTUALHOST/</a></b> virtualhost was setup correctly. :)</p>
 
-        <p>You can find the configuration file for this virtual host in:<br>
-        <table class="indent" border="0" cellspacing="3">
-        <tr>
-        <td><b>$APACHE_CONFIG/$APACHE_VIRTUAL_HOSTS_AVAILABLE/$VIRTUALHOST</b></td>
-        </tr>
-        </table>
-        </p>
+#         <p>You can find the configuration file for this virtual host in:<br>
+#         <table class="indent" border="0" cellspacing="3">
+#         <tr>
+#         <td><b>$APACHE_CONFIG/$APACHE_VIRTUAL_HOSTS_AVAILABLE/$VIRTUALHOST</b></td>
+#         </tr>
+#         </table>
+#         </p>
 
-        <p>You will need to place all of your website files in:<br>
-        <table class="indent" border="0" cellspacing="3">
-        <tr>
-        <td><b><a href="file://$DOC_ROOT_PREFIX/$FOLDER">$DOC_ROOT_PREFIX/$FOLDER</b></a></td>
-        </tr>
-        </table>
-        </p>
+#         <p>You will need to place all of your website files in:<br>
+#         <table class="indent" border="0" cellspacing="3">
+#         <tr>
+#         <td><b><a href="file://$DOC_ROOT_PREFIX/$FOLDER">$DOC_ROOT_PREFIX/$FOLDER</b></a></td>
+#         </tr>
+#         </table>
+#         </p>
 
-        <p>This script is based upon the excellent virtualhost (V1.04) script by Patrick Gibson <patrick@patrickg.com> for OS X.
-        You can download the original script for OS X from Patrick's website: <b><a href="http://patrickg.com/virtualhost">http://patrickg.com/virtualhost</a></b>
-        </p>
-        <p>
-        For the latest version of this script for Ubuntu go to <b><a href="https://github.com/pgib/virtualhost.sh/tree/ubuntu">Github</a></b>!<br/>
-            The Ubuntu Version is based on Bjorn Wijers script. Visit Bjorn Wijers' website: <br />
-            <b><a href="http://burobjorn.nl">http://burobjorn.nl</a></b><br>
+#         <p>This script is based upon the excellent virtualhost (V1.04) script by Patrick Gibson <patrick@patrickg.com> for OS X.
+#         You can download the original script for OS X from Patrick's website: <b><a href="http://patrickg.com/virtualhost">http://patrickg.com/virtualhost</a></b>
+#         </p>
+#         <p>
+#         For the latest version of this script for Ubuntu go to <b><a href="https://github.com/pgib/virtualhost.sh/tree/ubuntu">Github</a></b>!<br/>
+#             The Ubuntu Version is based on Bjorn Wijers script. Visit Bjorn Wijers' website: <br />
+#             <b><a href="http://burobjorn.nl">http://burobjorn.nl</a></b><br>
 
-            </p>
-            </div>
+#             </p>
+#             </div>
 
-            </div>
-            </td></tr></table>
+#             </div>
+#             </td></tr></table>
 
-            </body>
-            </html>
-__EOF
-            chown $USER:$OWNER_GROUP $DOC_ROOT_PREFIX/$FOLDER/index.html
+#             </body>
+#             </html>
+# __EOF
+#             chown $USER:$OWNER_GROUP $DOC_ROOT_PREFIX/$FOLDER/index.html
 
-        fi
-    fi
+#         fi
+#     fi
 
     # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     # Create a default virtualhost file
