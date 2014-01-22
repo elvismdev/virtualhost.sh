@@ -5,31 +5,12 @@
 # Is a nice little script to setup a new virtualhost in Ubuntu based upon the
 # excellent virtualhost script by Patrick Gibson <patrick@patrickg.com> for OS X.
 #
-# This script has been updated to work on Ubuntu 12.04 (Precise Pangolin) with
-# Apache2 (version 2.2.22) and probably works on Debian as well, but this has
-# not been tested (yet). Feel free to test it on other Linux distributions.
+# This script has been updated to work on Ubuntu 13.10 (Saucy Salamander) with
+# Apache2 (version 2.4.6) and probably works on Debian as well, this has
+# been tested. Feel free to test it on other Linux distributions.
 # If you encounter any issues feel free to send bugreports & patches
-# Just send an email to Bjorn Wijers <burobjorn@burobjorn.nl>.
+# Just send an email to Elvis Morales <elvismdev@gmail.com>.
 
-# = CHANGELOG =
-#
-# 12.04-1
-#    - Fixes: Made the script more compatible with Ubuntu 12.04 LTS
-#    (Precise Pangolin) using the ports.conf file, pinky instead of finger,
-#    checks apache2.conf for include statement of the Ubuntu/Debian standard
-#    'sites-enabled' configuration directory and add it if it's not found.
-#
-#    - New: Added command line parameter '--version' to check for the version
-#    of the script.
-#
-#    - New: Added CREATE_INDEX variable. Set to yes to explicitly create an
-#    index.html file if none was found. By default set to no. So no index.html
-#    will be created from now on.
-#
-#    - New: Added ERROR_LOG variable. Set to /var/log/apache2, but can be easily
-#    easily changed to set the VirtualHost's errorlog. Uses the following format:
-#    $VIRTUALHOST-error.log
-#
 # = USAGE =
 #
 # 1. Create a VirtualHost:
